@@ -31,7 +31,7 @@ type ExerciseHistory = {
     exercises: ExerciseMap
 };
 
-type FileParser = (file: File) => Promise<ExerciseHistory>;
+type FileParser = (parser: typeof parse) => (file: File) => Promise<ExerciseHistory>;
 
 const mapItem = (item: StrongLineItem): ExerciseLog => {
     return {
@@ -43,7 +43,7 @@ const mapItem = (item: StrongLineItem): ExerciseLog => {
     }
 }
 
-export const parseStrongCSV: FileParser = csvFile => {
+export const csvParser: FileParser = parse => csvFile => {
     return new Promise((resolve, reject) => {
         if (csvFile.type !== 'text/csv') {
             reject(new Error('Not a CSV file'));

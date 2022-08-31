@@ -1,12 +1,13 @@
 import { ChangeEventHandler, useState, useRef } from 'react'
 import * as Plot from '@observablehq/plot';
-import { parseStrongCSV } from './parser';
+import { useDependency } from './dependency';
 import reactLogo from './assets/react.svg'
 import './App.css'
 
 function App() {
   const [count, setCount] = useState(0)
   const chartRef = useRef<HTMLDivElement>(null);
+  const { parseStrongCSV } = useDependency();
 
   const handleFile: ChangeEventHandler = (e) => {
     const input = e.target as HTMLInputElement;
