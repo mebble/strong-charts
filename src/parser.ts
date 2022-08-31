@@ -1,4 +1,5 @@
 import { parse } from 'papaparse';
+import type { ExerciseLog, ExerciseHistory, ExerciseMap } from './models';
 
 type StrongLineItem = {
     Date: string,
@@ -13,22 +14,6 @@ type StrongLineItem = {
     Weight: number,
     'Workout Name': string,
     'Workout Notes': string | null,
-};
-
-type ExerciseLog = {
-    date: Date,
-    setOrder: number,
-    weight: number,
-    reps: number,
-    rpe: number | null,
-};
-
-type ExerciseMap = {
-    [key: string]: ExerciseLog[]
-};
-
-type ExerciseHistory = {
-    exercises: ExerciseMap
 };
 
 type FileParser = (parser: typeof parse) => (file: File) => Promise<ExerciseHistory>;
@@ -71,6 +56,7 @@ export const csvParser: FileParser = parse => csvFile => {
                 }, {});
 
                 resolve({
+                    exerciseNames: Object.keys(exercises),
                     exercises
                 });
             },

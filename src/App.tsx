@@ -1,10 +1,16 @@
-import { ChangeEventHandler, useState, useRef } from 'react'
+import { ChangeEventHandler, useState, useRef, useEffect } from 'react'
 import * as Plot from '@observablehq/plot';
+import type { ExerciseHistory } from './models';
 import { useDependency } from './dependency';
 import reactLogo from './assets/react.svg'
 import './App.css'
 
 function App() {
+  const [ selectedExercise, setSelectedExercise ] = useState('');
+  const [ history, setHistory ] = useState<ExerciseHistory>({
+    exerciseNames: [],
+    exercises: {}
+  });
   const [count, setCount] = useState(0)
   const chartRef = useRef<HTMLDivElement>(null);
   const { parseStrongCSV } = useDependency();
@@ -15,16 +21,19 @@ function App() {
     const file = input.files[0];
 
     parseStrongCSV(file)
-      .then(history => {
-        const logs = history.exercises['Bench Press (Dumbbell)'];
-        const plotSvg = Plot.plot({
-          marks: [
-              Plot.dot(logs, { x: 'date', y: 'weight' })
-          ]
-        })
-        chartRef.current?.append(plotSvg)
-      });
+      .then(history => setHistory(history));
   };
+
+  useEffect(() => {
+    const logs = history.exercises[selectedExercise];
+    if (logs === undefined) return;
+    const plotSvg = Plot.plot({
+      marks: [
+          Plot.dot(logs, { x: 'date', y: 'reps' })
+      ]
+    })
+    chartRef.current?.replaceChildren(plotSvg)
+  }, [selectedExercise]);
 
   return (
     <div className="App">
@@ -45,6 +54,15 @@ function App() {
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
         <input type="file" id="input" onChange={handleFile} />
+        <select
+          value={selectedExercise}
+          onChange={e => setSelectedExercise(e.target.value)}
+          disabled={history.exerciseNames.length === 0}
+        >
+          {history.exerciseNames.map(name => (
+            <option key={name} value={name}>{name}</option>
+          ))}
+        </select>
         <div className="chart-container" ref={chartRef}></div>
       </div>
       <p className="read-the-docs">
