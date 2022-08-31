@@ -1,23 +1,8 @@
 import { ChangeEventHandler, useState, useRef } from 'react'
-import { parse } from 'papaparse';
 import * as Plot from '@observablehq/plot';
+import { parseStrongCSV } from './parser';
 import reactLogo from './assets/react.svg'
 import './App.css'
-
-type StrongLineItem = {
-  Date: string,
-  Distance: number,
-  Duration: string,
-  'Exercise Name': string,
-  Notes: string | null,
-  RPE: number | null,
-  Reps: number,
-  Seconds: number,
-  'Set Order': number,
-  Weight: number,
-  'Workout Name': string,
-  'Workout Notes': string | null,
-};
 
 function App() {
   const [count, setCount] = useState(0)
@@ -27,24 +12,17 @@ function App() {
     const input = e.target as HTMLInputElement;
     if (!input.files) return;
     const file = input.files[0];
-    if (file.type !== 'text/csv') {
-      console.error('Not a CSV file')
-      return;
-    };
-    parse<StrongLineItem>(file, {
-      header: true,
-      skipEmptyLines: true,
-      dynamicTyping: true,
-      complete(results) {
-        console.log(results)
+
+    parseStrongCSV(file)
+      .then(history => {
+        const logs = history.exercises['Bench Press (Dumbbell)'];
         const plotSvg = Plot.plot({
           marks: [
-            Plot.dot(results.data, { x: 'Date', y: 'Weight' })
+              Plot.dot(logs, { x: 'date', y: 'weight' })
           ]
         })
         chartRef.current?.append(plotSvg)
-      },
-    })
+      });
   };
 
   return (
