@@ -2,18 +2,17 @@ import { ChangeEventHandler, useState, useRef, useEffect } from 'react'
 import * as Plot from '@observablehq/plot';
 import type { ExerciseHistory } from './models';
 import { useDependency } from './dependency';
-import reactLogo from './assets/react.svg'
+
 import './App.css'
 
 function App() {
+  const { parseStrongCSV } = useDependency();
   const [ selectedExercise, setSelectedExercise ] = useState('');
   const [ history, setHistory ] = useState<ExerciseHistory>({
     exerciseNames: [],
     exercises: {}
   });
-  const [count, setCount] = useState(0)
   const chartRef = useRef<HTMLDivElement>(null);
-  const { parseStrongCSV } = useDependency();
 
   const handleFile: ChangeEventHandler = (e) => {
     const input = e.target as HTMLInputElement;
@@ -37,21 +36,10 @@ function App() {
 
   return (
     <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
+      <h1>Strong Charts</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
         <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
+          Select the CSV file exported from the Strong app
         </p>
         <input type="file" id="input" onChange={handleFile} />
         <select
@@ -65,9 +53,6 @@ function App() {
         </select>
         <div className="chart-container" ref={chartRef}></div>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </div>
   )
 }
