@@ -35,16 +35,16 @@ function App() {
     const marks = [];
     if (repsOptions.showMetric) {
       marks.push(
-        repsOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'reps' })) : undefined,
-        repsOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: repsOptions.agg }, { x: 'date', y: 'reps' })) : undefined,
-        repsOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'reps' }) : undefined,
+        repsOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'reps', stroke: '#f99' })) : undefined,
+        repsOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: repsOptions.agg }, { x: 'date', y: 'reps', stroke: 'red' })) : undefined,
+        repsOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'reps', stroke: '#a00', strokeOpacity: 0.5 }) : undefined,
       )
     }
     if (weightOptions.showMetric) {
       marks.push(
-        weightOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'weight' })) : undefined,
-        weightOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: weightOptions.agg }, { x: 'date', y: 'weight' })) : undefined,
-        weightOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'weight' }) : undefined,
+        weightOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'weight', stroke: '#99f' })) : undefined,
+        weightOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: weightOptions.agg }, { x: 'date', y: 'weight', stroke: 'blue' })) : undefined,
+        weightOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'weight', stroke: '#00a', strokeOpacity: 0.5 }) : undefined,
       )
     }
 
@@ -59,29 +59,33 @@ function App() {
         <p>
           Select the CSV file exported from the Strong app
         </p>
-        <input type="file" id="input" onChange={handleFile} />
-        <div className="options-container">
-          <select
-            value={selectedExercise}
-            onChange={e => setSelectedExercise(e.target.value)}
-            disabled={history.exerciseNames.length === 0}
-          >
-            {history.exerciseNames.map(name => (
-              <option key={name} value={name}>{name}</option>
-            ))}
-          </select>
-          <MetricOptions
-            metric="reps"
-            options={repsOptions}
-            handleCheckbox={repsOptions.handleCheckbox}
-            setAgg={repsOptions.setAgg}
-          />
-          <MetricOptions
-            metric="weight"
-            options={weightOptions}
-            handleCheckbox={weightOptions.handleCheckbox}
-            setAgg={weightOptions.setAgg}
-          />
+        <div className="inputs-container">
+          <div className="exercise-select">
+            <input type="file" id="input" onChange={handleFile} />
+            <select
+              value={selectedExercise}
+              onChange={e => setSelectedExercise(e.target.value)}
+              disabled={history.exerciseNames.length === 0}
+            >
+              {history.exerciseNames.map(name => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="options-container">
+            <MetricOptions
+              metric="reps"
+              options={repsOptions}
+              handleCheckbox={repsOptions.handleCheckbox}
+              setAgg={repsOptions.setAgg}
+            />
+            <MetricOptions
+              metric="weight"
+              options={weightOptions}
+              handleCheckbox={weightOptions.handleCheckbox}
+              setAgg={weightOptions.setAgg}
+            />
+          </div>
         </div>
         <div className="chart-container" ref={chartRef}></div>
       </div>

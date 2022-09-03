@@ -15,12 +15,17 @@
   color: black;
 }
 
-input[type="file"] {
+.inputs-container {
+  margin-bottom: 1rem;
+}
+
+.exercise-select {
   margin-bottom: 1rem;
 }
 
 .options-container {
   display: flex;
-  justify-content: space-evenly;
-  margin-bottom: 1rem;
+}
+.options-container > * {
+  flex-grow: 1;
 }
