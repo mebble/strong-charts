@@ -15,6 +15,12 @@
   color: black;
 }
 
-input[type="file"], select {
+input[type="file"] {
+  margin-bottom: 1rem;
+}
+
+.options-container {
+  display: flex;
+  justify-content: space-evenly;
   margin-bottom: 1rem;
 }

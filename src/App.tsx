@@ -1,6 +1,6 @@
 import { ChangeEventHandler, useState, useRef, useEffect } from 'react'
 import * as Plot from '@observablehq/plot';
-import type { ExerciseHistory } from './models';
+import type { ExerciseHistory, ExerciseMetric } from './models';
 import { useDependency } from './dependency';
 
 import './App.css'
@@ -8,6 +8,7 @@ import './App.css'
 function App() {
   const { parseStrongCSV } = useDependency();
   const [ selectedExercise, setSelectedExercise ] = useState('');
+  const [ metric, setMetric ] = useState<ExerciseMetric>('reps');
   const [ history, setHistory ] = useState<ExerciseHistory>({
     exerciseNames: [],
     exercises: {}
@@ -28,11 +29,11 @@ function App() {
     if (logs === undefined) return;
     const plotSvg = Plot.plot({
       marks: [
-          Plot.dot(logs, { x: 'date', y: 'reps' })
+          Plot.dot(logs, { x: 'date', y: metric })
       ]
     })
     chartRef.current?.replaceChildren(plotSvg)
-  }, [selectedExercise]);
+  }, [selectedExercise, metric]);
 
   return (
     <div className="App">
@@ -42,15 +43,25 @@ function App() {
           Select the CSV file exported from the Strong app
         </p>
         <input type="file" id="input" onChange={handleFile} />
-        <select
-          value={selectedExercise}
-          onChange={e => setSelectedExercise(e.target.value)}
-          disabled={history.exerciseNames.length === 0}
-        >
-          {history.exerciseNames.map(name => (
-            <option key={name} value={name}>{name}</option>
-          ))}
-        </select>
+        <div className="options-container">
+          <select
+            value={selectedExercise}
+            onChange={e => setSelectedExercise(e.target.value)}
+            disabled={history.exerciseNames.length === 0}
+          >
+            {history.exerciseNames.map(name => (
+              <option key={name} value={name}>{name}</option>
+            ))}
+          </select>
+          <select
+            value={metric}
+            onChange={e => setMetric(e.target.value as ExerciseMetric)}
+          >
+            <option value="reps">Reps</option>
+            <option value="weight">Weight</option>
+            <option value="rpe">RPE</option>
+          </select>
+        </div>
         <div className="chart-container" ref={chartRef}></div>
       </div>
     </div>

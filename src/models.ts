@@ -6,6 +6,8 @@ export type ExerciseLog = {
     rpe: number | null,
 };
 
+export type ExerciseMetric = 'weight' | 'reps' | 'rpe';
+
 export type ExerciseMap = {
     [key: string]: ExerciseLog[]
 };
