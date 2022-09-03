@@ -17,8 +17,6 @@ function App() {
 
   const weightOptions = useOptions(true);
   const repsOptions = useOptions(false);
-  const rpeOptions = useOptions(false);
-
   const chartRef = useRef<HTMLDivElement>(null);
 
   const handleFile: ChangeEventHandler = (e) => {
@@ -49,17 +47,10 @@ function App() {
         weightOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'weight' }) : undefined,
       )
     }
-    if (rpeOptions.showMetric) {
-      marks.push(
-        rpeOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'rpe' })) : undefined,
-        rpeOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: rpeOptions.agg }, { x: 'date', y: 'rpe' })) : undefined,
-        rpeOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'rpe' }) : undefined,
-      )
-    }
 
     const plotSvg = Plot.plot({ marks });
     chartRef.current?.replaceChildren(plotSvg)
-  }, [selectedExercise, history, weightOptions, repsOptions, rpeOptions]);
+  }, [selectedExercise, history, weightOptions, repsOptions]);
 
   return (
     <div className="App">
@@ -90,12 +81,6 @@ function App() {
             options={weightOptions}
             handleCheckbox={weightOptions.handleCheckbox}
             setAgg={weightOptions.setAgg}
-          />
-          <MetricOptions
-            metric="rpe"
-            options={rpeOptions}
-            handleCheckbox={rpeOptions.handleCheckbox}
-            setAgg={rpeOptions.setAgg}
           />
         </div>
         <div className="chart-container" ref={chartRef}></div>
