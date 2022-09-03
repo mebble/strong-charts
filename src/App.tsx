@@ -1,13 +1,17 @@
 import { ChangeEventHandler, useState, useRef, useEffect } from 'react'
 import * as Plot from '@observablehq/plot';
-import type { ExerciseHistory, ExerciseMetric } from './models';
+import type { ExerciseHistory, ExerciseLog, ExerciseMetric } from './models';
 import { useDependency } from './dependency';
 
 import './App.css'
 
+type MetricReducer = (metric1: number, metric2: number) => number;
+const sum: MetricReducer = (num1, num2) => num1 + num2;
+
 function App() {
   const { parseStrongCSV } = useDependency();
   const [ selectedExercise, setSelectedExercise ] = useState('');
+  const [ logReducer, setLogReducer ] = useState<MetricReducer>(() => sum);  // https://stackoverflow.com/a/55621679
   const [ metric, setMetric ] = useState<ExerciseMetric>('reps');
   const [ history, setHistory ] = useState<ExerciseHistory>({
     exerciseNames: [],
@@ -27,9 +31,28 @@ function App() {
   useEffect(() => {
     const logs = history.exercises[selectedExercise];
     if (logs === undefined) return;
+
+    const aggregatedLogs = Object.entries(
+        logs.reduce<{ [dateString: string]: ExerciseLog }>((agg, log) => {
+          const dateString = log.date.toString()
+          if (dateString in agg) {
+            const logAgg = agg[dateString];
+            agg[dateString] = {
+              date: logAgg.date,
+              setOrder: 0,
+              weight: logReducer(logAgg.weight, log.weight),
+              reps: logReducer(logAgg.reps, log.reps),
+              rpe: logReducer((logAgg.rpe || 0), (log.rpe || 0)),
+            };
+            return agg
+          }
+          return { ...agg, [dateString]: log }
+        }, {})
+      ).map(entry => entry[1])
+
     const plotSvg = Plot.plot({
       marks: [
-          Plot.dot(logs, { x: 'date', y: metric })
+          Plot.dot(aggregatedLogs, { x: 'date', y: metric })
       ]
     })
     chartRef.current?.replaceChildren(plotSvg)
