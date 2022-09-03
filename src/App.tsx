@@ -1,17 +1,19 @@
 import { ChangeEventHandler, useState, useRef, useEffect } from 'react'
 import * as Plot from '@observablehq/plot';
-import type { ExerciseHistory, ExerciseLog, ExerciseMetric } from './models';
+import type { ExerciseHistory, ExerciseMetric } from './models';
 import { useDependency } from './dependency';
 
 import './App.css'
 
-type MetricReducer = (metric1: number, metric2: number) => number;
-const sum: MetricReducer = (num1, num2) => num1 + num2;
+type Aggregator = 'sum' | 'min' | 'max' | 'mean' | 'median' | 'mode';
 
 function App() {
   const { parseStrongCSV } = useDependency();
   const [ selectedExercise, setSelectedExercise ] = useState('');
-  const [ logReducer, setLogReducer ] = useState<MetricReducer>(() => sum);  // https://stackoverflow.com/a/55621679
+  const [ agg, setAgg ] = useState<Aggregator>('mean');
+  const [ showSets, setShowSets ] = useState(true);
+  const [ showRange, setShowRange ] = useState(true);
+  const [ showAgg, setShowAgg ] = useState(true);
   const [ metric, setMetric ] = useState<ExerciseMetric>('reps');
   const [ history, setHistory ] = useState<ExerciseHistory>({
     exerciseNames: [],
@@ -32,31 +34,15 @@ function App() {
     const logs = history.exercises[selectedExercise];
     if (logs === undefined) return;
 
-    const aggregatedLogs = Object.entries(
-        logs.reduce<{ [dateString: string]: ExerciseLog }>((agg, log) => {
-          const dateString = log.date.toString()
-          if (dateString in agg) {
-            const logAgg = agg[dateString];
-            agg[dateString] = {
-              date: logAgg.date,
-              setOrder: 0,
-              weight: logReducer(logAgg.weight, log.weight),
-              reps: logReducer(logAgg.reps, log.reps),
-              rpe: logReducer((logAgg.rpe || 0), (log.rpe || 0)),
-            };
-            return agg
-          }
-          return { ...agg, [dateString]: log }
-        }, {})
-      ).map(entry => entry[1])
+    const marks = [
+      showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: metric })) : undefined,
+      showAgg ? Plot.line(logs, Plot.groupX({ y: agg }, { x: 'date', y: metric })) : undefined,
+      showSets ? Plot.dot(logs, { x: 'date', y: metric }) : undefined,
+    ];
 
-    const plotSvg = Plot.plot({
-      marks: [
-          Plot.dot(aggregatedLogs, { x: 'date', y: metric })
-      ]
-    })
+    const plotSvg = Plot.plot({ marks });
     chartRef.current?.replaceChildren(plotSvg)
-  }, [selectedExercise, metric]);
+  }, [selectedExercise, metric, agg, showSets, showRange, showAgg]);
 
   return (
     <div className="App">
@@ -83,6 +69,29 @@ function App() {
             <option value="reps">Reps</option>
             <option value="weight">Weight</option>
             <option value="rpe">RPE</option>
+          </select>
+          <div>
+            <label htmlFor="show-sets">Sets</label>
+            <input id="show-sets" name="show-sets" type="checkbox" checked={showSets} onChange={e => setShowSets(e.target.checked)} />
+          </div>
+          <div>
+            <label htmlFor="show-range">Range</label>
+            <input id="show-range" name="show-range" type="checkbox" checked={showRange} onChange={e => setShowRange(e.target.checked)} />
+          </div>
+          <div>
+            <label htmlFor="show-agg">Aggregate</label>
+            <input id="show-agg" name="show-agg" type="checkbox" checked={showAgg} onChange={e => setShowAgg(e.target.checked)} />
+          </div>
+          <select
+            value={agg}
+            onChange={e => setAgg(e.target.value as Aggregator)}
+          >
+            <option value="sum">sum</option>
+            <option value="min">min</option>
+            <option value="max">max</option>
+            <option value="mean">mean</option>
+            <option value="median">median</option>
+            <option value="mode">mode</option>
           </select>
         </div>
         <div className="chart-container" ref={chartRef}></div>
