@@ -20,7 +20,7 @@ type FileParser = (parser: typeof parse) => (file: File) => Promise<ExerciseHist
 
 const mapItem = (item: StrongLineItem): ExerciseLog => {
     return {
-        date: new Date(item.Date),
+        date: new Date(item.Date.split(' ')[0]),  // https://talk.observablehq.com/t/plot-not-showing-in-safari/6913/2
         setOrder: item['Set Order'],
         weight: item.Weight,
         reps: item.Reps,
