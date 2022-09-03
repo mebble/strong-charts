@@ -24,11 +24,12 @@ const MetricOptions = ({
     handleCheckbox: CheckboxHandler,
     setAgg: AggregatorHandler,
 }) => {
-    return <fieldset>
-          <div>
+    return <form>
+        <div>
             <label htmlFor={`${metric}show-metric`}>Show {metric}</label>
             <input id={`${metric}-show-metric`} name="show-metric" type="checkbox" checked={showMetric} onChange={e => handleCheckbox('metric', e.target.checked)} />
-          </div>
+        </div>
+        <fieldset disabled={!showMetric}>
           <div>
             <label htmlFor={`${metric}show-sets`}>Sets</label>
             <input id={`${metric}-show-sets`} name="show-sets" type="checkbox" checked={showSets} onChange={e => handleCheckbox('sets', e.target.checked)} />
@@ -52,7 +53,8 @@ const MetricOptions = ({
             <option value="median">median</option>
             <option value="mode">mode</option>
           </select>
-    </fieldset>
+        </fieldset>
+    </form>
 };
 
 export default MetricOptions;
