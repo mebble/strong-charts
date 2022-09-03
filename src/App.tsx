@@ -1,24 +1,24 @@
 import { ChangeEventHandler, useState, useRef, useEffect } from 'react'
 import * as Plot from '@observablehq/plot';
-import type { ExerciseHistory, ExerciseMetric } from './models';
+import type { ExerciseHistory } from './models/exercise';
 import { useDependency } from './dependency';
 
 import './App.css'
-
-type Aggregator = 'sum' | 'min' | 'max' | 'mean' | 'median' | 'mode';
+import { useOptions } from './hooks';
+import MetricOptions from './components/MetricOptions';
 
 function App() {
   const { parseStrongCSV } = useDependency();
   const [ selectedExercise, setSelectedExercise ] = useState('');
-  const [ agg, setAgg ] = useState<Aggregator>('mean');
-  const [ showSets, setShowSets ] = useState(true);
-  const [ showRange, setShowRange ] = useState(true);
-  const [ showAgg, setShowAgg ] = useState(true);
-  const [ metric, setMetric ] = useState<ExerciseMetric>('reps');
   const [ history, setHistory ] = useState<ExerciseHistory>({
     exerciseNames: [],
     exercises: {}
   });
+
+  const weightOptions = useOptions(true);
+  const repsOptions = useOptions(false);
+  const rpeOptions = useOptions(false);
+
   const chartRef = useRef<HTMLDivElement>(null);
 
   const handleFile: ChangeEventHandler = (e) => {
@@ -34,15 +34,32 @@ function App() {
     const logs = history.exercises[selectedExercise];
     if (logs === undefined) return;
 
-    const marks = [
-      showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: metric })) : undefined,
-      showAgg ? Plot.line(logs, Plot.groupX({ y: agg }, { x: 'date', y: metric })) : undefined,
-      showSets ? Plot.dot(logs, { x: 'date', y: metric }) : undefined,
-    ];
+    const marks = [];
+    if (repsOptions.showMetric) {
+      marks.push(
+        repsOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'reps' })) : undefined,
+        repsOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: repsOptions.agg }, { x: 'date', y: 'reps' })) : undefined,
+        repsOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'reps' }) : undefined,
+      )
+    }
+    if (weightOptions.showMetric) {
+      marks.push(
+        weightOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'weight' })) : undefined,
+        weightOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: weightOptions.agg }, { x: 'date', y: 'weight' })) : undefined,
+        weightOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'weight' }) : undefined,
+      )
+    }
+    if (rpeOptions.showMetric) {
+      marks.push(
+        rpeOptions.showRange ? Plot.ruleX(logs, Plot.groupX({ y1: 'min', y2: 'max' }, { x: 'date', y: 'rpe' })) : undefined,
+        rpeOptions.showAgg ? Plot.line(logs, Plot.groupX({ y: rpeOptions.agg }, { x: 'date', y: 'rpe' })) : undefined,
+        rpeOptions.showSets ? Plot.dot(logs, { x: 'date', y: 'rpe' }) : undefined,
+      )
+    }
 
     const plotSvg = Plot.plot({ marks });
     chartRef.current?.replaceChildren(plotSvg)
-  }, [selectedExercise, metric, agg, showSets, showRange, showAgg]);
+  }, [selectedExercise, history, weightOptions, repsOptions, rpeOptions]);
 
   return (
     <div className="App">
@@ -62,37 +79,24 @@ function App() {
               <option key={name} value={name}>{name}</option>
             ))}
           </select>
-          <select
-            value={metric}
-            onChange={e => setMetric(e.target.value as ExerciseMetric)}
-          >
-            <option value="reps">Reps</option>
-            <option value="weight">Weight</option>
-            <option value="rpe">RPE</option>
-          </select>
-          <div>
-            <label htmlFor="show-sets">Sets</label>
-            <input id="show-sets" name="show-sets" type="checkbox" checked={showSets} onChange={e => setShowSets(e.target.checked)} />
-          </div>
-          <div>
-            <label htmlFor="show-range">Range</label>
-            <input id="show-range" name="show-range" type="checkbox" checked={showRange} onChange={e => setShowRange(e.target.checked)} />
-          </div>
-          <div>
-            <label htmlFor="show-agg">Aggregate</label>
-            <input id="show-agg" name="show-agg" type="checkbox" checked={showAgg} onChange={e => setShowAgg(e.target.checked)} />
-          </div>
-          <select
-            value={agg}
-            onChange={e => setAgg(e.target.value as Aggregator)}
-          >
-            <option value="sum">sum</option>
-            <option value="min">min</option>
-            <option value="max">max</option>
-            <option value="mean">mean</option>
-            <option value="median">median</option>
-            <option value="mode">mode</option>
-          </select>
+          <MetricOptions
+            metric="reps"
+            options={repsOptions}
+            handleCheckbox={repsOptions.handleCheckbox}
+            setAgg={repsOptions.setAgg}
+          />
+          <MetricOptions
+            metric="weight"
+            options={weightOptions}
+            handleCheckbox={weightOptions.handleCheckbox}
+            setAgg={weightOptions.setAgg}
+          />
+          <MetricOptions
+            metric="rpe"
+            options={rpeOptions}
+            handleCheckbox={rpeOptions.handleCheckbox}
+            setAgg={rpeOptions.setAgg}
+          />
         </div>
         <div className="chart-container" ref={chartRef}></div>
       </div>

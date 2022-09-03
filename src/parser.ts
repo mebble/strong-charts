@@ -1,5 +1,5 @@
 import { parse } from 'papaparse';
-import type { ExerciseLog, ExerciseHistory, ExerciseMap } from './models';
+import type { ExerciseLog, ExerciseHistory, ExerciseMap } from './models/exercise';
 
 type StrongLineItem = {
     Date: string,
