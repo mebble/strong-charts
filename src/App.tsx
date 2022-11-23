@@ -57,7 +57,7 @@ function App() {
       <h1>Strong Charts</h1>
       <div className="card">
         <p>
-          Select the CSV file exported from the Strong app
+          Select the CSV file that's <a href="https://help.strongapp.io/article/235-export-workout-data">exported from the Strong app</a>
         </p>
         <div className="inputs-container">
           <div className="exercise-select">
