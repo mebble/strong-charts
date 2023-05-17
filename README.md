@@ -7,6 +7,6 @@
 ## Development
 
 ```
-yarn install
-yarn dev
+pnpm install
+pnpm dev
 ```
