@@ -1,15 +1,13 @@
 import { useState } from "react";
 import type { Aggregator, MetricOptions} from "./models/plot";
 
-export const useOptions = (show: boolean): MetricOptions => {
-    const [ showMetric, setShowMetric ] = useState(show);
+export const useOptions = (): MetricOptions => {
     const [ showSets, setShowSets ] = useState(true);
     const [ showRange, setShowRange ] = useState(true);
     const [ showAgg, setShowAgg ] = useState(true);
     const [ agg, setAgg ] = useState<Aggregator>('mean');
 
     return {
-        showMetric,
         showSets,
         showRange,
         showAgg,
@@ -17,9 +15,6 @@ export const useOptions = (show: boolean): MetricOptions => {
         setAgg,
         handleCheckbox(box, value) {
             switch (box) {
-                case 'metric':
-                    setShowMetric(value);
-                    break;
                 case 'sets':
                     setShowSets(value);
                     break;
@@ -30,7 +25,7 @@ export const useOptions = (show: boolean): MetricOptions => {
                     setShowAgg(value);
                     break;
                 default:
-                    break;
+                    const _exhaustive: never = box;
             }
         },
     }

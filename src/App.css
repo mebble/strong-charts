@@ -11,21 +11,11 @@
   padding: 2em;
 }
 
-.chart-container {
-  color: black;
-}
-
-.inputs-container {
-  margin-bottom: 1rem;
-}
-
 .exercise-select {
   margin-bottom: 1rem;
 }
 
-.options-container {
+.charts {
   display: flex;
-}
-.options-container > * {
-  flex-grow: 1;
+  justify-content: center;
 }

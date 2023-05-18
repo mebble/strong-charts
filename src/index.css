@@ -68,3 +68,10 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.options-container {
+  display: flex;
+}
+.options-container > * {
+  flex-grow: 1;
+}

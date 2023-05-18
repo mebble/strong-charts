@@ -4,7 +4,6 @@ import type { Aggregator, AggregatorHandler, CheckboxHandler } from "../models/p
 const MetricOptions = ({
     metric,
     options: {
-        showMetric = false,
         showSets = true,
         showRange = true,
         showAgg = true,
@@ -15,7 +14,6 @@ const MetricOptions = ({
 }: {
     metric: ExerciseMetric,
     options: {
-        showMetric?: boolean,
         showSets?: boolean,
         showRange?: boolean,
         showAgg?: boolean,
@@ -25,11 +23,7 @@ const MetricOptions = ({
     setAgg: AggregatorHandler,
 }) => {
     return <form>
-        <div>
-            <label htmlFor={`${metric}show-metric`}>Show {metric}</label>
-            <input id={`${metric}-show-metric`} name="show-metric" type="checkbox" checked={showMetric} onChange={e => handleCheckbox('metric', e.target.checked)} />
-        </div>
-        <fieldset disabled={!showMetric}>
+        <fieldset>
           <div>
             <label htmlFor={`${metric}show-sets`}>Sets</label>
             <input id={`${metric}-show-sets`} name="show-sets" type="checkbox" checked={showSets} onChange={e => handleCheckbox('sets', e.target.checked)} />
